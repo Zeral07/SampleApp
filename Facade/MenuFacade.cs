@@ -14,7 +14,10 @@ namespace SampleApp.Facade
 
         public async Task<Menu> Create(Menu obj)
         {
-            obj.CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
+            if (_httpContextAccessor.HttpContext != null && _httpContextAccessor.HttpContext.User.Identity != null)
+                obj.CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
+            else
+                obj.CreatedBy = "System";
             obj.CreatedTime = DateTime.Now;
             _context.Menus.Add(obj);
             await _context.SaveChangesAsync();
@@ -23,7 +26,10 @@ namespace SampleApp.Facade
 
         public async Task<Menu> Delete(Menu obj)
         {
-            obj.LastUpdatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
+            if (_httpContextAccessor.HttpContext != null && _httpContextAccessor.HttpContext.User.Identity != null)
+                obj.LastUpdatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
+            else
+                obj.LastUpdatedBy = "System";
             obj.LastUpdatedTime = DateTime.Now;
             obj.RowStatus = (int)DBRowStatus.NotActive;
             _context.Menus.Update(obj);
@@ -59,7 +65,10 @@ namespace SampleApp.Facade
 
         public async Task<Menu> Update(Menu obj)
         {
-            obj.LastUpdatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
+            if (_httpContextAccessor.HttpContext != null && _httpContextAccessor.HttpContext.User.Identity != null)
+                obj.LastUpdatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
+            else
+                obj.LastUpdatedBy = "System";
             obj.LastUpdatedTime = DateTime.Now;
             _context.Menus.Update(obj);
             await _context.SaveChangesAsync();

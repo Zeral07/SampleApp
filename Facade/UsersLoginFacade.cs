@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SampleApp.Enums;
 using SampleApp.Interface;
 using SampleApp.Models;
@@ -15,7 +14,10 @@ namespace SampleApp.Facade
 
         public async Task<UsersLogin> Create(UsersLogin obj)
         {
-            obj.CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
+            if (_httpContextAccessor.HttpContext != null && _httpContextAccessor.HttpContext.User.Identity != null)
+                obj.CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
+            else
+                obj.CreatedBy = "System";
             obj.CreatedTime = DateTime.Now;
             _context.UsersLogins.Add(obj);
             await _context.SaveChangesAsync();
@@ -24,7 +26,10 @@ namespace SampleApp.Facade
 
         public async Task<UsersLogin> Delete(UsersLogin obj)
         {
-            obj.LastUpdatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
+            if (_httpContextAccessor.HttpContext != null && _httpContextAccessor.HttpContext.User.Identity != null)
+                obj.LastUpdatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
+            else
+                obj.LastUpdatedBy = "System";
             obj.LastUpdatedTime = DateTime.Now;
             obj.RowStatus = (int)DBRowStatus.NotActive;
             _context.UsersLogins.Update(obj);
@@ -60,7 +65,10 @@ namespace SampleApp.Facade
 
         public async Task<UsersLogin> Update(UsersLogin obj)
         {
-            obj.LastUpdatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
+            if (_httpContextAccessor.HttpContext != null && _httpContextAccessor.HttpContext.User.Identity != null)
+                obj.LastUpdatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
+            else
+                obj.LastUpdatedBy = "System";
             obj.LastUpdatedTime = DateTime.Now;
             _context.UsersLogins.Update(obj);
             await _context.SaveChangesAsync();

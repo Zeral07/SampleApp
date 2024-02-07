@@ -1,5 +1,4 @@
 ﻿using SampleApp.Models;
-using SampleApp.ViewModels;
 
 namespace SampleApp.Interface
 {

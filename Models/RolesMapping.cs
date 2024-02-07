@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace SampleApp.Models;
+﻿namespace SampleApp.Models;
 
 public partial class RolesMapping
 {

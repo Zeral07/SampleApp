@@ -14,7 +14,10 @@ namespace SampleApp.Facade
 
         public async Task<User> Create(User obj)
         {
-            obj.CreatedBy = _httpContextAccessor.HttpContext.User.Identity?.Name ?? "System";
+            if (_httpContextAccessor.HttpContext != null && _httpContextAccessor.HttpContext.User.Identity != null)
+                obj.CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
+            else
+                obj.CreatedBy = "System";
             obj.CreatedTime = DateTime.Now;
             _context.Users.Add(obj);
             await _context.SaveChangesAsync();
@@ -23,7 +26,10 @@ namespace SampleApp.Facade
 
         public async Task<User> Delete(User obj)
         {
-            obj.LastUpdatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
+            if (_httpContextAccessor.HttpContext != null && _httpContextAccessor.HttpContext.User.Identity != null)
+                obj.LastUpdatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
+            else
+                obj.LastUpdatedBy = "System";
             obj.LastUpdatedTime = DateTime.Now;
             obj.RowStatus = (int)DBRowStatus.NotActive;
             _context.Users.Update(obj);
@@ -49,7 +55,7 @@ namespace SampleApp.Facade
         public async Task<ResultResponse<User>> GetByParameterWithPaging(string condition, List<object> parameters, int pageCount, int pageSize)
         {
             var list = await _context.Users.Where(condition, parameters.ToArray()).ToListAsync();
-            ResultResponse<User> result = new ResultResponse<User>
+            ResultResponse<User> result = new()
             {
                 Result = list.Skip(pageCount == 1 ? 0 : pageCount * pageSize - pageSize).Take(pageSize).ToList(),
                 Total = list.Count
@@ -59,7 +65,10 @@ namespace SampleApp.Facade
 
         public async Task<User> Update(User obj)
         {
-            obj.LastUpdatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
+            if (_httpContextAccessor.HttpContext != null && _httpContextAccessor.HttpContext.User.Identity != null)
+                obj.LastUpdatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
+            else
+                obj.LastUpdatedBy = "System";
             obj.LastUpdatedTime = DateTime.Now;
             _context.Users.Update(obj);
             await _context.SaveChangesAsync();
