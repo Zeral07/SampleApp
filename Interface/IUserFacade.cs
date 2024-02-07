@@ -3,7 +3,7 @@ using SampleApp.ViewModels;
 
 namespace SampleApp.Interface
 {
-    public interface IUserFacade : IFacadeBase<UserDto, User>
+    public interface IUserFacade : IFacadeBase<User>
     {
     }
 }

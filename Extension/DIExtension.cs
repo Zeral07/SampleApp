@@ -9,6 +9,7 @@ namespace SampleApp.Extension
             this IServiceCollection services)
         {
             services.AddScoped<IUserFacade, UserFacade>();
+            services.AddScoped<IUsersLoginFacade, UsersLoginFacade>();
             services.AddScoped<IMenuFacade, MenuFacade>();
 
             return services;

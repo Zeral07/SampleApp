@@ -9,6 +9,8 @@ builder.Services.AddMapperProfiles();
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddDbContext<SampleDbContext>(opt => opt.UseLazyLoadingProxies().UseSqlServer(builder.Configuration.GetConnectionString("SampleDatabase")));
 builder.Services.AddDIGroup();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSession();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -25,7 +27,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseSession();
 app.UseAuthorization();
 
 app.MapControllerRoute(

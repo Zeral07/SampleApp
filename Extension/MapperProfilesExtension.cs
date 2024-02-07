@@ -8,6 +8,7 @@ namespace SampleApp.Extension
             this IServiceCollection services)
         {
             services.AddAutoMapper(
+                typeof(UsersLoginProfile),
                 typeof(UserProfile),
                 typeof(MenuProfile)
             );

@@ -13,40 +13,40 @@ namespace SampleApp.Facade
         private readonly SampleDbContext _context = context;
         private readonly IMapper _mapper = mapper;
 
-        public async Task<UserDto> Create(User obj)
+        public async Task<User> Create(User obj)
         {
             _context.Users.Add(obj);
             await _context.SaveChangesAsync();
-            return _mapper.Map<UserDto>(obj) ?? new();
+            return _mapper.Map<User>(obj) ?? new();
         }
 
-        public async Task<UserDto> Delete(User obj)
+        public async Task<User> Delete(User obj)
         {
             obj.RowStatus = (int)DBRowStatus.NotActive;
             _context.Users.Update(obj);
             await _context.SaveChangesAsync();
-            return _mapper.Map<UserDto>(obj) ?? new();
+            return _mapper.Map<User>(obj) ?? new();
         }
 
-        public async Task<List<UserDto>> GetAll()
+        public async Task<List<User>> GetAll()
         {
-            return _mapper.Map<List<UserDto>>(await _context.Users.ToListAsync()) ?? [];
+            return _mapper.Map<List<User>>(await _context.Users.ToListAsync()) ?? [];
         }
 
-        public async Task<UserDto> GetByID(int id)
+        public async Task<User> GetByID(int id)
         {
-            return _mapper.Map<UserDto>(await _context.Users.Where(w => w.Id == id).SingleOrDefaultAsync()) ?? new();
+            return _mapper.Map<User>(await _context.Users.Where(w => w.Id == id).SingleOrDefaultAsync()) ?? new();
         }
 
-        public async Task<List<UserDto>> GetByParameter(string condition, List<object> parameters)
+        public async Task<List<User>> GetByParameter(string condition, List<object> parameters)
         {
-            return _mapper.Map<List<UserDto>>(await _context.Users.Where(condition, parameters.ToArray()).ToListAsync()) ?? [];
+            return _mapper.Map<List<User>>(await _context.Users.Where(condition, parameters.ToArray()).ToListAsync()) ?? [];
         }
 
-        public async Task<ResultResponse<UserDto>> GetByParameterWithPaging(string condition, List<object> parameters, int pageCount, int pageSize)
+        public async Task<ResultResponse<User>> GetByParameterWithPaging(string condition, List<object> parameters, int pageCount, int pageSize)
         {
-            var list = _mapper.Map<List<UserDto>>(await _context.Users.Where(condition, parameters.ToArray()).ToListAsync()) ?? [];
-            ResultResponse<UserDto> result = new ResultResponse<UserDto>
+            var list = _mapper.Map<List<User>>(await _context.Users.Where(condition, parameters.ToArray()).ToListAsync()) ?? [];
+            ResultResponse<User> result = new ResultResponse<User>
             {
                 Result = list.Skip(pageCount == 1 ? 0 : pageCount * pageSize - pageSize).Take(pageSize).ToList(),
                 Total = list.Count
@@ -54,11 +54,11 @@ namespace SampleApp.Facade
             return result;
         }
 
-        public async Task<UserDto> Update(User obj)
+        public async Task<User> Update(User obj)
         {
             _context.Users.Update(obj);
             await _context.SaveChangesAsync();
-            return _mapper.Map<UserDto>(obj) ?? new();
+            return _mapper.Map<User>(obj) ?? new();
         }
     }
 }
