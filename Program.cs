@@ -1,6 +1,14 @@
+using Microsoft.EntityFrameworkCore;
+using SampleApp.Extension;
+using SampleApp.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddMapperProfiles();
+builder.Services.AddRouting(options => options.LowercaseUrls = true);
+builder.Services.AddDbContext<SampleDbContext>(opt => opt.UseLazyLoadingProxies().UseSqlServer(builder.Configuration.GetConnectionString("SampleDatabase")));
+builder.Services.AddDIGroup();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
