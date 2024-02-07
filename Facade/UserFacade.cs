@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SampleApp.Enums;
 using SampleApp.Interface;
 using SampleApp.Models;
@@ -8,44 +7,48 @@ using System.Linq.Dynamic.Core;
 
 namespace SampleApp.Facade
 {
-    public class UserFacade(SampleDbContext context, IMapper mapper) : IUserFacade
+    public class UserFacade(SampleDbContext context, IHttpContextAccessor httpContextAccessor) : IUserFacade
     {
         private readonly SampleDbContext _context = context;
-        private readonly IMapper _mapper = mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
         public async Task<User> Create(User obj)
         {
+            obj.CreatedBy = _httpContextAccessor.HttpContext.User.Identity?.Name ?? "System";
+            obj.CreatedTime = DateTime.Now;
             _context.Users.Add(obj);
             await _context.SaveChangesAsync();
-            return _mapper.Map<User>(obj) ?? new();
+            return obj;
         }
 
         public async Task<User> Delete(User obj)
         {
+            obj.LastUpdatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
+            obj.LastUpdatedTime = DateTime.Now;
             obj.RowStatus = (int)DBRowStatus.NotActive;
             _context.Users.Update(obj);
             await _context.SaveChangesAsync();
-            return _mapper.Map<User>(obj) ?? new();
+            return obj;
         }
 
         public async Task<List<User>> GetAll()
         {
-            return _mapper.Map<List<User>>(await _context.Users.ToListAsync()) ?? [];
+            return await _context.Users.ToListAsync();
         }
 
-        public async Task<User> GetByID(int id)
+        public async Task<User?> GetByID(int id)
         {
-            return _mapper.Map<User>(await _context.Users.Where(w => w.Id == id).SingleOrDefaultAsync()) ?? new();
+            return await _context.Users.Where(w => w.Id == id).SingleOrDefaultAsync();
         }
 
         public async Task<List<User>> GetByParameter(string condition, List<object> parameters)
         {
-            return _mapper.Map<List<User>>(await _context.Users.Where(condition, parameters.ToArray()).ToListAsync()) ?? [];
+            return await _context.Users.Where(condition, parameters.ToArray()).ToListAsync();
         }
 
         public async Task<ResultResponse<User>> GetByParameterWithPaging(string condition, List<object> parameters, int pageCount, int pageSize)
         {
-            var list = _mapper.Map<List<User>>(await _context.Users.Where(condition, parameters.ToArray()).ToListAsync()) ?? [];
+            var list = await _context.Users.Where(condition, parameters.ToArray()).ToListAsync();
             ResultResponse<User> result = new ResultResponse<User>
             {
                 Result = list.Skip(pageCount == 1 ? 0 : pageCount * pageSize - pageSize).Take(pageSize).ToList(),
@@ -56,9 +59,11 @@ namespace SampleApp.Facade
 
         public async Task<User> Update(User obj)
         {
+            obj.LastUpdatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
+            obj.LastUpdatedTime = DateTime.Now;
             _context.Users.Update(obj);
             await _context.SaveChangesAsync();
-            return _mapper.Map<User>(obj) ?? new();
+            return obj;
         }
     }
 }

@@ -4,7 +4,7 @@ namespace SampleApp.Interface
 {
     public interface IFacadeBase<Model> where Model : class
     {
-        public Task<Model> GetByID(int id);
+        public Task<Model?> GetByID(int id);
         public Task<List<Model>> GetAll();
         public Task<List<Model>> GetByParameter(string condition, List<object> parameters);
         public Task<ResultResponse<Model>> GetByParameterWithPaging(string condition, List<object> parameters, int pageCount, int pageSize);
