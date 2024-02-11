@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SampleApp.Enums;
+using SampleApp.Helpers;
 using SampleApp.Interface;
 using SampleApp.Models;
 using SampleApp.ViewModels;
@@ -14,8 +15,8 @@ namespace SampleApp.Facade
 
         public async Task<Menu> Create(Menu obj)
         {
-            if (_httpContextAccessor.HttpContext != null && _httpContextAccessor.HttpContext.User.Identity != null)
-                obj.CreatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
+            if (_httpContextAccessor.HttpContext != null)
+                obj.CreatedBy = ServiceCoreHelper.CurrentUser(_httpContextAccessor.HttpContext);
             else
                 obj.CreatedBy = "System";
             obj.CreatedTime = DateTime.Now;
@@ -24,27 +25,37 @@ namespace SampleApp.Facade
             return obj;
         }
 
-        public async Task<Menu> Delete(Menu obj)
+        public async Task<bool> Delete(int id)
         {
-            if (_httpContextAccessor.HttpContext != null && _httpContextAccessor.HttpContext.User.Identity != null)
-                obj.LastUpdatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
-            else
-                obj.LastUpdatedBy = "System";
-            obj.LastUpdatedTime = DateTime.Now;
-            obj.RowStatus = (int)DBRowStatus.NotActive;
-            _context.Menus.Update(obj);
-            await _context.SaveChangesAsync();
-            return obj;
+            var obj = await _context.Menus.Where(w => w.Id == id && w.RowStatus == (int)DBRowStatus.Active).SingleOrDefaultAsync();
+            if (obj != null)
+            {
+                if (_httpContextAccessor.HttpContext != null)
+                    obj.LastUpdatedBy = ServiceCoreHelper.CurrentUser(_httpContextAccessor.HttpContext);
+                else
+                    obj.LastUpdatedBy = "System";
+                obj.LastUpdatedTime = DateTime.Now;
+                obj.RowStatus = (int)DBRowStatus.NotActive;
+                _context.Menus.Update(obj);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
         }
 
         public async Task<List<Menu>> GetAll()
         {
-            return await _context.Menus.ToListAsync();
+            return await _context.Menus.Where(w => w.RowStatus == (int)DBRowStatus.Active).ToListAsync();
         }
 
         public async Task<Menu?> GetByID(int id)
         {
-            return await _context.Menus.Where(w => w.Id == id).SingleOrDefaultAsync();
+            return await _context.Menus.Where(w => w.Id == id && w.RowStatus == (int)DBRowStatus.Active).SingleOrDefaultAsync();
+        }
+
+        public async Task<List<Menu>> GetByUserID(int userId)
+        {
+            return await _context.Menus.FromSql($"dbo.sp_GetMenusByUserID @UserID={userId}").ToListAsync();
         }
 
         public async Task<List<Menu>> GetByParameter(string condition, List<object> parameters)
@@ -52,27 +63,35 @@ namespace SampleApp.Facade
             return await _context.Menus.Where(condition, parameters.ToArray()).ToListAsync();
         }
 
-        public async Task<ResultResponse<Menu>> GetByParameterWithPaging(string condition, List<object> parameters, int pageCount, int pageSize)
+        public async Task<PaginationFilter<Menu>> GetByParameterWithPaging(string condition, List<object> parameters, int pageCount, int pageSize)
         {
             var list = await _context.Menus.Where(condition, parameters.ToArray()).ToListAsync();
-            ResultResponse<Menu> result = new()
+            PaginationFilter<Menu> result = new()
             {
                 Result = list.Skip(pageCount == 1 ? 0 : pageCount * pageSize - pageSize).Take(pageSize).ToList(),
                 Total = list.Count
             };
+
+            if (result.Result.Count == 0 && result.Total > 0)
+            {
+                result.Result = list.Take(pageSize).ToList();
+                result.PageNumber = 1;
+            }
+            else
+                result.PageNumber = pageCount;
+
             return result;
         }
 
-        public async Task<Menu> Update(Menu obj)
+        public async Task Update(Menu obj)
         {
-            if (_httpContextAccessor.HttpContext != null && _httpContextAccessor.HttpContext.User.Identity != null)
-                obj.LastUpdatedBy = _httpContextAccessor.HttpContext.User.Identity.Name ?? "System";
+            if (_httpContextAccessor.HttpContext != null)
+                obj.LastUpdatedBy = ServiceCoreHelper.CurrentUser(_httpContextAccessor.HttpContext);
             else
                 obj.LastUpdatedBy = "System";
             obj.LastUpdatedTime = DateTime.Now;
             _context.Menus.Update(obj);
             await _context.SaveChangesAsync();
-            return obj;
         }
     }
 }

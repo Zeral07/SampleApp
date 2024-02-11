@@ -1,0 +1,60 @@
+﻿@using SampleApp.ViewModels
+@model UserDto
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb bg-light">
+        <li class="breadcrumb-item"><i class="fa-solid fa-screwdriver-wrench"></i> Administration</li>
+        <li class="breadcrumb-item" aria-current="page"><i class="fa-solid fa-users"></i> User Mapping</li>
+        <li class="breadcrumb-item active" aria-current="page">@(Model.Id == 0 ? "New" : "Edit")</li>
+    </ol>
+</nav>
+@using (Html.BeginForm("Form", "UserMapping", FormMethod.Post, htmlAttributes: new { @class = "form-horizontal" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.Id)
+    @Html.HiddenFor(model => model.RowStatus)
+    @Html.HiddenFor(model => model.CreatedBy)
+    @Html.HiddenFor(model => model.CreatedTime)
+    @Html.HiddenFor(model => model.LastUpdatedBy)
+    @Html.HiddenFor(model => model.LastUpdatedTime)
+
+    <div class="row g-4 mb-2">
+        @Html.LabelFor(model => model.FullName, htmlAttributes: new { @class = "col-sm-2 control-label text text-primary" })
+        <div class="col-sm-4">
+            @Html.EditorFor(model => model.FullName, new { htmlAttributes = new { @class = "form-control" } })
+        </div>
+        @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "col-sm-2 control-label text text-primary" })
+        <div class="col-sm-4">
+            @Html.EditorFor(model => model.Email, new { htmlAttributes = new { type = "email", @class = "form-control" } })
+        </div>
+    </div>
+    <div class="row g-2 mb-2">
+        @Html.LabelFor(model => model.Position, htmlAttributes: new { @class = "col-sm-2 control-label text text-primary" })
+        <div class="col-sm-4">
+            @Html.EditorFor(model => model.Position, new { htmlAttributes = new { @class = "form-control" } })
+        </div>
+    </div>
+    <div class="row g-1 mb-2">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-4">
+            <button type="submit" class="btn btn-primary btn-raised btn-sm" value="Edit"><i class="fa fa-save"></i> Save</button>
+            <button type="button" class="btn btn-warning btn-raised btn-sm" onclick="location.href = '@Url.Action("Index", "UserMapping")'"><i class="fa fa-history"></i> Back</button>
+        </div>
+    </div>
+}
+
+@section Scripts{
+    @if (!string.IsNullOrEmpty(TempData["Message"]?.ToString()) && !(bool)TempData["IsSuccess"])
+    {
+        <script>
+            MessageErrorAlert();
+        </script>
+    }
+
+    @if (!string.IsNullOrEmpty(TempData["Message"]?.ToString()) && (bool)TempData["IsSuccess"])
+    {
+        <script>
+            MessageSuccessAlert();
+        </script>
+    }
+}

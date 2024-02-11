@@ -7,7 +7,7 @@
 
         public string Name { get; set; } = null!;
 
-        public string? Url { get; set; }
-        public short? Sequence { get; set; }
+        public string Url { get; set; } = "";
+        public short Sequence { get; set; }
     }
 }

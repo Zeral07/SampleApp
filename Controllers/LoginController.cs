@@ -10,13 +10,15 @@ using System.Text;
 
 namespace SampleApp.Controllers
 {
-    public class LoginController(IUsersLoginFacade usersLoginFacade, IMapper mapper) : Controller
+    public class LoginController(IUsersLoginFacade usersLoginFacade, IMenuFacade menuFacade, IMapper mapper) : Controller
     {
         private readonly IUsersLoginFacade _usersLoginFacade = usersLoginFacade;
+        private readonly IMenuFacade _menuFacade = menuFacade;
         private readonly IMapper _mapper = mapper;
 
         public ActionResult Index()
         {
+            HttpContext.Session.Clear();
             return View();
         }
 
@@ -45,9 +47,9 @@ namespace SampleApp.Controllers
                         else
                         {
                             userInDb.LastLogin = DateTime.Now;
-                            userInDb = await _usersLoginFacade.Update(userInDb);
-
+                            await _usersLoginFacade.Update(userInDb);
                             HttpContext.Session.Set(ConstantHelper.SESSION_USERID, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(_mapper.Map<UsersLoginDto>(userInDb))));
+                            HttpContext.Session.Set(ConstantHelper.SESSION_MENUS, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(_mapper.Map<List<MenuDto>>(await _menuFacade.GetByUserID(userInDb.Id)))));
                             return RedirectToAction("Index", "Home");
                         }
                     }

@@ -9,7 +9,7 @@
             while (ex != null)
             {
                 if (ex.Message != "")
-                    msg = ex.Message + " </br>";
+                    msg = ex.Message;
 
                 ex = ex.InnerException;
             }

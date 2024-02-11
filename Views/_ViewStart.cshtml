@@ -1,5 +1,5 @@
 ﻿@{
-    if (ViewContext.RouteData.Values["controller"].ToString() == "Login")
+    if (ViewContext.RouteData.Values["controller"].Equals("Login"))
     {
         Layout = null;
     }

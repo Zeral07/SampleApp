@@ -1,0 +1,144 @@
+﻿@using SampleApp.Parameters
+@using SampleApp.ViewModels
+@model PaginationFilter<UserParameter>
+@{
+    ViewData["Title"] = "User Mapping";
+}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb bg-light">
+        <li class="breadcrumb-item"><i class="fa-solid fa-screwdriver-wrench"></i> Administration</li>
+        <li class="breadcrumb-item active" aria-current="page"><i class="fa-solid fa-users"></i> User Mapping</li>
+  </ol>
+</nav>
+@using (Html.BeginForm("Index", "UserMapping", FormMethod.Post, htmlAttributes: new { @class = "form-horizontal" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.PageNumber)
+    <div class="row g-4 mb-2">
+        @Html.LabelFor(model => model.Parameter.FullName, htmlAttributes: new { @class = "col-sm-2 control-label text text-primary" })
+        <div class="col-sm-4">
+            @Html.EditorFor(model => model.Parameter.FullName, new { htmlAttributes = new { @class = "form-control" } })
+        </div>
+        @Html.LabelFor(model => model.Parameter.Email, htmlAttributes: new { @class = "col-sm-2 control-label text text-primary" })
+        <div class="col-sm-4">
+            @Html.EditorFor(model => model.Parameter.Email, new { htmlAttributes = new { @class = "form-control" } })
+        </div>
+    </div>
+    <div class="row g-2 mb-2">
+        @Html.LabelFor(model => model.Parameter.Position, htmlAttributes: new { @class = "col-sm-2 control-label text text-primary" })
+        <div class="col-sm-4">
+            @Html.EditorFor(model => model.Parameter.Position, new { htmlAttributes = new { @class = "form-control" } })
+        </div>
+    </div>
+    <div class="row g-1 mb-2">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-4">
+            <button type="submit" id="btnSearch" class="btn btn-primary btn-raised btn-sm">Search <i class="fa-solid fa-magnifying-glass"></i></button>
+            <button type="button" id="btnAdd" onclick="location.href = '@Url.Action("Form", "UserMapping", new { id = 0 })'" class="btn btn-success btn-raised btn-sm" on>Add <i class="fa fa-plus-circle"></i></button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="grid">
+                <table class="table">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">No</th>
+                            <th scope="col">Nama Lengkap</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Jabatan</th>
+                            <th scope="col">#</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int i = ((Model.PageSize * Model.PageNumber) - Model.PageSize) + 1;
+                            foreach(var data in Model.Result)
+                            {
+                                        <tr>
+                                            <th scope="row">@i</th>
+                                            <td>@data.FullName</td>
+                                            <td>@data.Email</td>
+                                            <td>@data.Position</td>
+                                            <td>
+                                                <a role="button" asp-action="Form" asp-controller="UserMapping" asp-route-id="@data.Id"><i class="fa-lg fa-solid fa-pen-to-square"></i></a>
+                                                <a role="button" data-model-id="@data.Id" onclick="Delete(this)"><i class="fa-lg fa-solid fa-trash-can"></i></a>
+                                            </td>
+                                        </tr>
+                                i++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-end">
+                    <li class="page-item">@Html.DropDownListFor(model => model.PageSize, new SelectList(Model.PageSizes), new { @class = "form-control" })</li>
+                    <li class="page-item"><p class="h6 p-2">@(Model.Total == 0 ? 0 : ((Model.PageSize * Model.PageNumber) - Model.PageSize) + 1) - @(Math.Min(Model.Total, Model.PageNumber * Model.PageSize)) of @Model.Total records</p></li>
+                    <li class="page-item">
+                        <a class="page-link @(Model.PageNumber == 1 ? "disabled" : "")" id="linkPrev" role="button" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link @(Math.Min(Model.Total, Model.PageNumber * Model.PageSize) == Model.Total ? "disabled" : "")" id="linkNext" href="#" role="button" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+}
+
+@section Scripts
+{
+    <script>
+        function Delete(obj) {
+            var ele = $(obj);
+            var Id = ele.data("model-id");
+            var url = "/UserMapping/Delete/" + Id;
+            $.ajax({
+                url: url,
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data);
+                    if (data.isError === true)
+                        MessageErrorAlert(data.message);
+                    else {
+                        MessageSuccessAlert(data.message);
+                        setTimeout(function () {
+                            $("#btnSearch").click();
+                        }, 3000);
+                    }
+                },
+
+                error: function (response) {
+                    MessageErrorAlert(response.responseJSON.Message);
+                }
+
+            });
+        }
+
+        $(function () {
+            $("#linkPrev").click(function () {
+                let page = $("#PageNumber").val();
+                $("#PageNumber").val(parseInt(page) - 1)
+                $("#btnSearch").click();
+            });
+
+            $("#linkNext").click(function () {
+                let page = $("#PageNumber").val();
+                $("#PageNumber").val(parseInt(page) + 1)
+                $("#btnSearch").click();
+            });
+
+            $("#PageSize").change(function () {
+                $("#btnSearch").click();
+            });
+        });
+    </script>     
+}

@@ -1,4 +1,7 @@
-﻿namespace SampleApp.Models;
+﻿using System;
+using System.Collections.Generic;
+
+namespace SampleApp.Models;
 
 public partial class UsersMapping
 {
